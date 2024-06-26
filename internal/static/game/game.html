@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Click Game</title>
+    <style>
+        .item {
+            display: inline-block;
+            text-align: center;
+            margin: 10px;
+        }
+        img {
+            cursor: pointer;
+            width: 200px;
+            height: 200px;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        img:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+<div>
+    <div class="item">
+        <img src="../icon/fire.png" alt="fire" onclick="clickItem('fire')">
+        <p id="fire">fire: 0</p>
+    </div>
+    <div class="item">
+        <img src="../icon/water.png" alt="water" onclick="clickItem('water')">
+        <p id="water">water: 0</p>
+    </div>
+    <div class="item">
+        <img src="../icon/food.png" alt="food" onclick="clickItem('food')">
+        <p id="food">food: 0</p>
+    </div>
+</div>
+
+<script>
+    let ws = new WebSocket("ws://localhost:8080/v1/ws/game");
+
+    ws.onopen = function() {
+        console.log("Connected to WebSocket server");
+    };
+
+    ws.onmessage = function(event) {
+        let data = JSON.parse(event.data);
+        document.getElementById("fire").innerText = "fire: " + data.fire;
+        document.getElementById("water").innerText = "water: " + data.water;
+        document.getElementById("food").innerText = "food: " + data.food;
+    };
+
+    ws.onclose = function() {
+        console.log("Disconnected from WebSocket server");
+    };
+
+    ws.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    };
+
+    function clickItem(item) {
+        let msg = {};
+        msg[item] = 1;
+        ws.send(JSON.stringify(msg));
+    }
+</script>
+</body>
+</html>
