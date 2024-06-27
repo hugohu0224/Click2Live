@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Click2Live</title>
+    <link rel="stylesheet" href="./static/game/game.css">
+</head>
+<body>
+<div class="container">
+    <div class="item-container">
+        <div class="item" id="fire-item">
+            <img src="./static/icon/fire.png" alt="fire" onclick="clickItem('fire')">
+            <p id="user-fire">My Click: 0</p>
+            <p id="max-fire">Max Click: 0</p>
+            <p id="fire">Global Click: 0</p>
+        </div>
+        <div class="item" id="water-item">
+            <img src="./static/icon/water.png" alt="water" onclick="clickItem('water')">
+            <p id="user-water">My Click: 0</p>
+            <p id="max-water">Max Click: 0</p>
+            <p id="water">Global Click: 0</p>
+        </div>
+        <div class="item" id="food-item">
+            <img src="./static/icon/food.png" alt="food" onclick="clickItem('food')">
+            <p id="user-food">My Click: 0</p>
+            <p id="max-food">Max Click: 0</p>
+            <p id="food">Global Click: 0</p>
+        </div>
+    </div>
+    <div class="scores" id="user-scores">
+        <p>All Player Scores:</p>
+        <!-- user scores will be appended here dynamically -->
+    </div>
+</div>
+
+<script>
+    let ws = new WebSocket("ws://localhost:8080/v1/game/ws");
+    let currentUserId = {{ .UserID }};
+</script>
+<script src="./static/game/game.js"></script>
+
+</body>
+</html>

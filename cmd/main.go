@@ -2,8 +2,8 @@ package main
 
 import (
 	"go.uber.org/zap"
-	"tap2live/internal/handlers/ws"
 	"tap2live/internal/initinal"
+	"tap2live/internal/ws"
 )
 
 func main() {
@@ -15,7 +15,7 @@ func main() {
 	Router := initinal.InitRouters()
 	zap.S().Info("router initialized")
 
-	// broadcast
+	// game score broadcast
 	go ws.HandleMessages()
 
 	err := Router.Run(":8080")

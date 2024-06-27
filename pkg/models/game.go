@@ -1,6 +1,9 @@
 package models
 
-import "sync"
+import (
+	"github.com/google/uuid"
+	"sync"
+)
 
 type Score struct {
 	Fire  int `json:"fire"`
@@ -9,17 +12,25 @@ type Score struct {
 }
 
 type ClickMessage struct {
+	UserId uuid.UUID `json:"userId"`
 	Score
 }
 
 type PlayerScore struct {
 	Score
+	Id    uuid.UUID `json:"id"`
 	Mutex sync.Mutex
 }
 
 type GlobalScore struct {
 	Score
 	Mutex sync.Mutex
+}
+
+type BroadcastScore struct {
+	UserId uuid.UUID    `json:"userId"`
+	Ps     *PlayerScore `json:"ps"`
+	Gs     *GlobalScore `json:"gs"`
 }
 
 func (ps *PlayerScore) UpdateScore(fire, water, food int) {

@@ -10,7 +10,7 @@ import (
 func InitRouters() *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.Default())
-	r.LoadHTMLGlob("./internal/static/game/*.html")
+	r.LoadHTMLGlob("./internal/templates/*")
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
@@ -20,7 +20,7 @@ func InitRouters() *gin.Engine {
 
 	ApiGroup := r.Group("/v1")
 
-	routers.InitWsRouter(ApiGroup)
+	routers.InitGameRouter(ApiGroup)
 
 	return r
 }
