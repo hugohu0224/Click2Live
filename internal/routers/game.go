@@ -10,6 +10,6 @@ func InitGameRouter(router *gin.RouterGroup) {
 		Router := router.Group("/game")
 		Router.Static("/static", "./internal/static")
 		Router.GET("/ws", api.WsEndpoint)
-		Router.GET("/room", api.GetGamePage)
+		Router.GET("/home", api.GetGamePage)
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"net/http"
+	"tap2live/internal/global"
 	"tap2live/internal/ws"
 )
 
@@ -26,7 +27,16 @@ func WsEndpoint(c *gin.Context) {
 		return
 	}
 	zap.S().Infof("successfully upgraded connection to WebSocket")
-	ws.HandleConnection(conn)
+
+	//hubId := c.Param("hubId")
+	hubId := "a"
+
+	hub, exists := global.HubManager.GetHubById(hubId)
+	if !exists {
+		zap.S().Errorf("failed to find hub by id: %s", hubId)
+	}
+
+	ws.ServeWs(conn, hub)
 }
 
 func GetGamePage(c *gin.Context) {
