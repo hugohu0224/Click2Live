@@ -5,21 +5,19 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"sync"
+	"sync/atomic"
 )
 
 type Score struct {
-	mu    sync.Mutex
-	Fire  int `json:"fire"`
-	Water int `json:"water"`
-	Food  int `json:"food"`
+	Fire  int64 `json:"fire"`
+	Water int64 `json:"water"`
+	Food  int64 `json:"food"`
 }
 
-func (s *Score) Update(fire, water, food int) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.Fire += fire
-	s.Water += water
-	s.Food += food
+func (s *Score) Update(fire, water, food int64) {
+	atomic.AddInt64(&s.Fire, fire)
+	atomic.AddInt64(&s.Water, water)
+	atomic.AddInt64(&s.Food, food)
 }
 
 type ClickMessage struct {
@@ -65,14 +63,14 @@ func (c *Client) readPump() {
 		c.ps.Id = msg.UserId
 
 		// update
-		c.hub.clientManager.gs.Update(msg.Fire, msg.Water, msg.Food)
+		c.hub.gs.Update(msg.Fire, msg.Water, msg.Food)
 		c.ps.Update(msg.Fire, msg.Water, msg.Food)
 
 		// start to broadcast
 		bs := &BroadcastScore{
 			UserId: msg.UserId,
 			Ps:     c.ps,
-			Gs:     c.hub.clientManager.gs,
+			Gs:     c.hub.gs,
 		}
 		c.hub.broadcast <- bs
 	}
@@ -97,14 +95,12 @@ func (c *Client) writePump() {
 
 type ClientManager struct {
 	clients map[*Client]bool
-	gs      *GlobalScore
 	mu      sync.RWMutex
 }
 
 func NewClientManager() *ClientManager {
 	return &ClientManager{
 		clients: make(map[*Client]bool),
-		gs:      &GlobalScore{},
 		mu:      sync.RWMutex{},
 	}
 }

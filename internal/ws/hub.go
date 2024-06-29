@@ -7,10 +7,9 @@ import (
 
 type Hub struct {
 	id            string
+	gs            *GlobalScore
 	clientManager *ClientManager
 	broadcast     chan *BroadcastScore
-	register      chan *Client
-	unregister    chan *Client
 	mu            sync.RWMutex
 }
 
@@ -24,9 +23,8 @@ func NewHub(id string) *Hub {
 	return &Hub{
 		id:            id,
 		clientManager: NewClientManager(),
+		gs:            &GlobalScore{},
 		broadcast:     make(chan *BroadcastScore),
-		register:      make(chan *Client),
-		unregister:    make(chan *Client),
 		mu:            sync.RWMutex{},
 	}
 }
@@ -49,24 +47,19 @@ func (h *Hub) Run() {
 	zap.S().Infof("game hub %s is running", h.id)
 	for {
 		select {
-		// register
-		case client := <-h.register:
-			h.clientManager.AddClient(client)
-
-		// unregister
-		case client := <-h.unregister:
-			h.clientManager.RemoveClient(client)
-
 		// broadcast
 		case message := <-h.broadcast:
 			for client := range h.clientManager.GetClients() {
-				select {
-				case client.send <- message:
-				// no receiver
-				default:
-					close(client.send)
-					h.clientManager.RemoveClient(client)
-				}
+
+				go func(client *Client, message *BroadcastScore) {
+					select {
+					case client.send <- message:
+					// close if no receiver
+					default:
+						close(client.send)
+						h.clientManager.RemoveClient(client)
+					}
+				}(client, message)
 			}
 		}
 	}
