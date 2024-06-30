@@ -1,10 +1,14 @@
 package ws
 
 import (
+	"context"
 	"github.com/gorilla/websocket"
+	"sync"
 )
 
 func ServeWs(conn *websocket.Conn, hub *Hub) {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	defer conn.Close()
 
 	client := &Client{
@@ -16,10 +20,21 @@ func ServeWs(conn *websocket.Conn, hub *Hub) {
 	}
 
 	hub.clientManager.AddClient(client)
+	defer hub.clientManager.RemoveClient(client)
 
-	go client.readPump()
-	go client.writePump()
+	// start
+	var wg sync.WaitGroup
+	wg.Add(2)
 
-	<-make(chan struct{})
+	go func() {
+		defer wg.Done()
+		client.readPump(ctx)
+	}()
 
+	go func() {
+		defer wg.Done()
+		client.writePump(ctx)
+	}()
+
+	wg.Wait()
 }

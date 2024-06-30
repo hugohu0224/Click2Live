@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"context"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -48,41 +49,49 @@ type Client struct {
 	ps   *PlayerScore
 }
 
-func (c *Client) readPump() {
+func (c *Client) readPump(ctx context.Context) {
 	for {
-		var msg ClickMessage
-		// get score from player's click
-		err := c.conn.ReadJSON(&msg)
-		if err != nil {
-			zap.S().Errorf("error reading message: %v", err)
-			c.hub.clientManager.RemoveClient(c)
-			break
+		select {
+		case <-ctx.Done():
+			zap.S().Infof("readPump for client %s stopped due to context cancellation", c.id)
+			return
+		default:
+			var msg ClickMessage
+			// get score from player's click
+			err := c.conn.ReadJSON(&msg)
+			if err != nil {
+				zap.S().Errorf("error reading message: %v", err)
+				c.hub.clientManager.RemoveClient(c)
+				return
+			}
+
+			// inject id for broadcast process
+			c.ps.Id = msg.UserId
+
+			// update
+			c.hub.gs.Update(msg.Fire, msg.Water, msg.Food)
+			c.ps.Update(msg.Fire, msg.Water, msg.Food)
+
+			// start to broadcast
+			bs := &BroadcastScore{
+				UserId: msg.UserId,
+				Ps:     c.ps,
+				Gs:     c.hub.gs,
+			}
+			c.hub.broadcast <- bs
 		}
-
-		// inject id for broadcast process
-		c.ps.Id = msg.UserId
-
-		// update
-		c.hub.gs.Update(msg.Fire, msg.Water, msg.Food)
-		c.ps.Update(msg.Fire, msg.Water, msg.Food)
-
-		// start to broadcast
-		bs := &BroadcastScore{
-			UserId: msg.UserId,
-			Ps:     c.ps,
-			Gs:     c.hub.gs,
-		}
-		c.hub.broadcast <- bs
 	}
 }
 
-func (c *Client) writePump() {
+func (c *Client) writePump(ctx context.Context) {
 	defer func() {
 		c.conn.Close()
 	}()
-
 	for {
 		select {
+		case <-ctx.Done():
+			zap.S().Infof("writePump for client %s stopped due to context cancellation", c.id)
+			return
 		case message, ok := <-c.send:
 			if !ok {
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
