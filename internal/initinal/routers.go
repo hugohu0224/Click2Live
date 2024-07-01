@@ -21,6 +21,7 @@ func InitRouters() *gin.Engine {
 	ApiGroup := r.Group("/v1")
 
 	routers.InitGameRouter(ApiGroup)
+	routers.InitAuthRouter(ApiGroup)
 
 	return r
 }

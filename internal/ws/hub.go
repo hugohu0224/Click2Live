@@ -50,7 +50,6 @@ func (h *Hub) Run() {
 		// broadcast
 		case message := <-h.broadcast:
 			for client := range h.clientManager.GetClients() {
-
 				go func(client *Client, message *BroadcastScore) {
 					select {
 					case client.send <- message:

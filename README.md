@@ -4,7 +4,6 @@ Click2Live is an experimental click-based game that focuses on multiplayer conne
 
 TODO:
 1. The id is passed through html now, which will need to be adjusted when the login function is added.
-2. Folder structure needs to be reorganized.
-3. The redirection after getting WebSocket Endpoint through API needs to modify.
-4. Other optimizations for concurrent processing.
-5. Visualization of game performance monitoring.
+2. Folder structure needs to be reorganized. 
+3. Other optimizations for concurrent processing.
+4. Visualization of game performance monitoring.
