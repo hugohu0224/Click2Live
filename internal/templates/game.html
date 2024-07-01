@@ -5,6 +5,7 @@
     <title>Click2Live</title>
     <link rel="stylesheet" href="./static/game/game.css">
 </head>
+
 <body>
 <div class="container">
     <div class="item-container">
@@ -27,15 +28,18 @@
             <p id="food">Global Click: 0</p>
         </div>
     </div>
-    <div class="scores" id="user-scores">
-        <p>All Player Scores:</p>
-        <!-- user scores will be appended here dynamically -->
+    <div class="scores">
+        <h2>All Player Scores:</h2>
+        <div id="user-scores">
+            <!-- user scores will be appended here dynamically -->
+        </div>
     </div>
 </div>
 
 <script>
-    let ws = new WebSocket("ws://localhost:8080/v1/game/ws");
+    let room = {{ .Room }};
     let currentUserId = {{ .UserID }};
+    let ws = new WebSocket(`ws://localhost:8080/v1/game/ws?room=${room}`);
 </script>
 <script src="./static/game/game.js"></script>
 

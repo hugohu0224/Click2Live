@@ -65,7 +65,7 @@ func (h *Hub) Run() {
 	}
 }
 
-func (hm *HubManager) StartAllHubs() {
+func (hm *HubManager) RunHubs() {
 	hm.Mu.RLock()
 	defer hm.Mu.RUnlock()
 	for hub := range hm.Hubs {

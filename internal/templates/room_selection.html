@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Click2Live</title>
+    <link rel="stylesheet" href="./static/room/room.css">
+</head>
+<body>
+<div class="container">
+    <div class="room" onclick="selectRoom('a')">
+        <h2>Supply Room A</h2>
+        <p>Click to enter the supply room</p>
+    </div>
+    <div class="room" onclick="selectRoom('b')">
+        <h2>Supply Room B</h2>
+        <p>Click to enter the supply room</p>
+    </div>
+</div>
+
+<script>
+    function selectRoom(room) {
+        window.location.href = `/v1/game/gamepage?room=${room}`;
+    }
+</script>
+</body>
+</html>

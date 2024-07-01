@@ -1,0 +1,4 @@
+# The current game is limited to two rooms
+# and the game room was bound to HTML for the visit
+FIRST_ROOM_ID : a
+SECOND_ROOM_ID : b

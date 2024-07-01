@@ -28,8 +28,11 @@ func WsEndpoint(c *gin.Context) {
 	}
 	zap.S().Infof("successfully upgraded connection to WebSocket")
 
-	//hubId := c.Param("hubId")
-	hubId := "a"
+	hubId := c.Query("room")
+	if len(hubId) == 0 {
+		zap.S().Errorf("failed to get room")
+		return
+	}
 
 	hub, exists := global.HubManager.GetHubById(hubId)
 	if !exists {
@@ -39,8 +42,16 @@ func WsEndpoint(c *gin.Context) {
 	ws.ServeWs(conn, hub)
 }
 
+func GetRoomPage(c *gin.Context) {
+	c.HTML(http.StatusOK, "room_selection.html", gin.H{})
+}
+
 func GetGamePage(c *gin.Context) {
+	room := c.Query("room")
+	userId := uuid.New().String()
+
 	c.HTML(http.StatusOK, "game.html", gin.H{
-		"UserID": uuid.New().String(),
+		"Room":   room,
+		"UserID": userId,
 	})
 }

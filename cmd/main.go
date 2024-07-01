@@ -10,14 +10,15 @@ func main() {
 	initinal.InitLogger()
 	zap.S().Info("logger initialized")
 
+	// viper
+	initinal.InitConfigByViper()
+	zap.S().Info("config initialized")
+
 	// routers
 	Router := initinal.InitRouters()
 	zap.S().Info("router initialized")
 
-	//// game score broadcast
-	//go ws.HandleMessages()
-
-	// hubmanager
+	// manager
 	initinal.InitHubManager()
 	zap.S().Info("HubManager initialized")
 
